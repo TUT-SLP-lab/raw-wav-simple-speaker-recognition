@@ -168,3 +168,6 @@ cython_debug/
 downloads
 csj_data
 data
+wandb
+exp_train*
+log.txt
