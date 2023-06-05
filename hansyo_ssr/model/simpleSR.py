@@ -1,6 +1,7 @@
 # import torch
 import numpy as np
 from torch import nn
+import pytorch_lightning as pl
 # from torch.nn.utils.rnn import pack_padded_sequence
 # from torch.nn.utils.rnn import pad_packed_sequence
 
@@ -10,8 +11,9 @@ def calc_frame_len(frame_num, window_size, stride_size):
     return int(np.ceil((frame_num - (window_size - stride_size)) / stride_size))
 
 
+# TODO: hydraを使ってパラメータを管理
 # ミニバッチには、DataLoaderを使えば良いらしい？(後で実装すること)
-class simpleSR(nn.Module):
+class simpleSR(pl.LightningModule):
     def __init__(self,
                  feats_dim,
                  input_length=8192,
@@ -83,6 +85,32 @@ class simpleSR(nn.Module):
         output = self.fc_output(output)
         output = self.softmax(output)
         return output
+
+    # TODO: Pytorch Lightningを使って動かせるようにする
+
+    def _model_step():
+        """ モデルの学習・検証において共通の処理の切り出し """
+        pass
+
+    def training_step():
+        """ Pytorch Lightningの学習の1ステップ
+        """
+        pass
+
+    def validation_step():
+        """ Pytorch Lightningの検証の1ステップ
+        """
+        pass
+
+    def test_step():
+        """ Pytorch Lightningのテストの1ステップ
+        """
+        pass
+
+    def configure_optimizers():
+        """ Pytorch LightningのオプティマイザーとLRスケジューラーの設定
+        """
+        pass
 
 
 # モデルの概形を出力する

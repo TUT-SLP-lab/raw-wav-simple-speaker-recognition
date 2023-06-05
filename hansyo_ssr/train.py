@@ -12,6 +12,9 @@ import wandb
 if __name__ == "__main__":
     wandb.init()
 
+    # TODO: Hydraへの対応
+    # TODO: Pytorchへの移行
+
     # 各種学習データのパス
     # 学習データ等の特徴量(feats.scp)が存在するディレクトリ
     feat_dir_train = 'data/fbank/train'
