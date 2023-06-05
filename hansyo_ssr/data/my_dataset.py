@@ -15,6 +15,7 @@ import numpy as np
 import sys
 
 
+# TODO: Hydra
 class SequenceDataset(Dataset):
     ''' ミニバッチデータを作成するクラス
         torch.utils.data.Datasetクラスを継承し，

@@ -2,9 +2,9 @@ import torch
 import os
 import sys
 import numpy as np
-from my_dataset import SequenceDataset
+from data.my_dataset import SequenceDataset
 from torch.utils.data import DataLoader
-from simpleSR import simpleSR
+from model.simpleSR import simpleSR
 
 if __name__ == "__main__":
     # 各種学習データのパス

@@ -4,7 +4,7 @@ import wave
 import numpy as np
 import os
 import sys
-from compute_mfcc import FeatureExtractor
+from data.compute_mfcc import FeatureExtractor
 
 
 #

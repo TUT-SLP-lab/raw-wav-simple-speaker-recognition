@@ -5,8 +5,8 @@ import numpy as np
 from torch import nn
 from torch.utils.data import DataLoader
 from torch import optim
-from my_dataset import SequenceDataset
-from simpleSR import simpleSR
+from data.my_dataset import SequenceDataset
+from model.simpleSR import simpleSR
 import wandb
 
 if __name__ == "__main__":

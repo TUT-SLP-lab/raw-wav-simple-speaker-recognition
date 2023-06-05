@@ -165,9 +165,9 @@ cython_debug/
 
 # End of https://www.toptal.com/developers/gitignore/api/Python
 
-downloads
-csj_data
-data
-wandb
+./downloads
+./csj_data
+./data
+./wandb
 exp_train*
 log.txt
