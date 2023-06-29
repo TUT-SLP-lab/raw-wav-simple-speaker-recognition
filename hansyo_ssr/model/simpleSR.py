@@ -38,12 +38,9 @@ class simpleSR(LightningModule):
 
         # モデルの層を準備
         self.lstm = LSTM(input_channel, hidden_dim, batch_first=True)
-        self.fc1_lin = Linear(hidden_dim, fc1_params)
-        self.fc1_relu = ReLU()
-        self.fc2_lin = Linear(fc1_params, fc2_params)
-        self.fc2_relu = ReLU()
-        self.fc_output_lin = Linear(fc2_params, output_nums)
-        self.fc_output_relu = ReLU()
+        self.fc1 = Sequential(Linear(hidden_dim, fc1_params), ReLU())
+        self.fc2 = Sequential(Linear(fc1_params, fc2_params), ReLU())
+        self.fc_output = Sequential(Linear(fc2_params, output_nums), ReLU())
 
         # 推論のためのSoftMax
         self.inference_softmax = Softmax(dim=1)
@@ -60,7 +57,11 @@ class simpleSR(LightningModule):
         self.f1_score = f1_score
 
     def forward(self, sequence, seq_lens):
-        """ネットワーク計算
+        """
+        ネットワーク計算
+
+        Params
+        ---
         sequence: 各発話の入力系列 [B x T x D]
         length: 各発話の系列長 [B]
             B: ミニバッチの初話数(ミニバッチサイズ)
@@ -70,15 +71,13 @@ class simpleSR(LightningModule):
         # パディング済みのTensorをPackedSequenceに変換する
         output = pack_padded_sequence(sequence, seq_lens.cpu(), batch_first=True, enforce_sorted=False)
         packed_output, (_, _) = self.lstm(output)  # 最終層の出力を話者特徴量とする
-        # _, (h_n, _) = self.lstm(output)  # 最終層の隠れ状態を話者特徴量とする
         # PackedSequence -> padded Tensor
         output, input_size = pad_packed_sequence(packed_output, batch_first=True)
-        # (N, *, hidden_dim) -> (N, hidden_dim) の形で、LSTMの最終出力だけを取り出す
+        # (N, *, hidden_dim) -> (N, hidden_dim) の形に、LSTMの最終出力だけを取り出す
         output = output[:, -1, :]
-        # output = h_n[0, :, :]
-        output = self.fc1_relu(self.fc1_lin(output))
-        output = self.fc2_relu(self.fc2_lin(output))
-        output = self.fc_output_relu(self.fc_output_lin(output))  # LSTM層の出力
+        output = self.fc1(output)  # LSTM層の出力をプロジェクション?
+        output = self.fc2(output)  # 話者特徴の学習: この層の出力が、このネットワークで得られる話者特徴量となる
+        output = self.fc_output(output)  # 特徴量をもとに話者分類を行う
         return output
 
     ########################################
