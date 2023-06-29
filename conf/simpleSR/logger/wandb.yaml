@@ -1,0 +1,6 @@
+# https://wandb.ai
+_target_: lightning.pytorch.loggers.wandb.WandbLogger
+save_dir: "${train.log_dir}"
+offline: False
+anonymous: False
+project: "hosoi_ssr"
