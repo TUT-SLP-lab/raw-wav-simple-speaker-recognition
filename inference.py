@@ -1,8 +1,8 @@
 import os
 from shutil import copytree
 
-import torch
 import hydra
+import torch
 from lightning import Trainer, seed_everything
 from omegaconf import DictConfig, OmegaConf
 
@@ -57,6 +57,7 @@ def setup(config: DictConfig):
         # criterion=criterion,
         optimizer=optimizer,
         scheduler=scheduler,
+        inference_out_dir=config.train.out_dir,
     )
 
     datamodule = AudioTextDataModule(config)
@@ -71,7 +72,7 @@ def setup(config: DictConfig):
 
 
 @hydra.main(config_path="conf/simpleSR", config_name="config", version_base="1.3")
-def train(config: DictConfig):
+def test(config: DictConfig):
     model, datamodule, callbacks, logger = setup(config)
     trainer = Trainer(
         callbacks=callbacks,
@@ -81,18 +82,11 @@ def train(config: DictConfig):
         accelerator="auto",
     )
     ckpt_path = config.ckpt_path
-    trainer.fit(model=model, datamodule=datamodule, ckpt_path=ckpt_path)
-
-
-@hydra.main(config_path="conf/simpleSR", config_name="config", version_base="1.3")
-def check_config(config: DictConfig):
-    model, _, _, _ = setup(config)
-    print(model)
-    print(OmegaConf.to_yaml(config))
-    exit(0)
+    if ckpt_path is None:
+        exit("ckpt_path is None")
+    trainer.test(model, datamodule=datamodule, ckpt_path=ckpt_path)
 
 
 if __name__ == "__main__":
-    # check_config()
-    torch.set_float32_matmul_precision('medium')
-    train()
+    torch.set_float32_matmul_precision("medium")
+    test()

@@ -1,0 +1,47 @@
+# dataset places
+dir: "data"
+token: "${data.dir}/token.list"
+feats_file_name: "feats_sampling_0.2.scp"
+spk:
+  file: "${data.dir}/spks"
+  to_id_file: "${data.dir}/spks_to_id"
+  female:
+    file: "${data.dir}/dual_data/female/spks.txt"
+  male:
+    file: "${data.dir}/dual_data/male/spks.txt"
+feats: # features settings
+  # dir: "downloads/wagahai_all_spk_norm"
+  dir: "downloads/jvs_norms"
+  n_fft: 1024
+  bins: 80
+train:
+  dir: "${data.dir}/train"
+  label: "${data.train.dir}/label.list"
+  # scp: "${data.train.dir}/feats.scp"
+  scp: "${data.train.dir}/${data.feats_file_name}"
+  mean_std: "${data.train.dir}/mean_std.txt"
+  shuffle: True
+  # dir: "${data.dir}/dev"
+  # label: "${data.dev.dir}/label.list"
+  # scp: "${data.dev.dir}/feats.scp"
+  # mean_std: "${data.dev.dir}/mean_std.txt"
+  # shuffle: True
+dev:
+  dir: "${data.dir}/dev"
+  label: "${data.dev.dir}/label.list"
+  scp: "${data.dev.dir}/${data.feats_file_name}"
+  mean_std: "${data.dev.dir}/mean_std.txt"
+  shuffle: False
+test:
+  dir: "${data.dir}/eval"
+  label: "${data.test.dir}/label.list"
+  scp: "${data.test.dir}/feats.scp"
+  mean_std: "${data.test.dir}/mean_std.txt"
+  shuffle: False
+# dataloader settings
+loader:
+  num_workers: 20 # Max: 20
+  batch_size: 128
+# datamodule settings
+module:
+  _target_: hansyo_ssr.data.AudioTextDataModule

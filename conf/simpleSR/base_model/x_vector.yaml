@@ -1,0 +1,4 @@
+_target_: hansyo_ssr.model.X_vector
+input_dim: ${data.feats.bins} # Same as features dimension
+# num_classes: 2
+num_classes: 101

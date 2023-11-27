@@ -167,10 +167,8 @@ cython_debug/
 
 ./downloads
 ./csj_data
-./data
+./data/*
 ./wandb
-exp_train*
 log.txt
-exp
-data
+exp*
 outputs

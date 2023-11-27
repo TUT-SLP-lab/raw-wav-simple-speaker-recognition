@@ -38,9 +38,10 @@ class simpleSR(LightningModule):
 
         # モデルの層を準備
         self.lstm = LSTM(input_channel, hidden_dim, batch_first=True)
-        self.fc1 = Sequential(Linear(hidden_dim, fc1_params), ReLU())
-        self.fc2 = Sequential(Linear(fc1_params, fc2_params), ReLU())
-        self.fc_output = Sequential(Linear(fc2_params, output_nums), ReLU())
+        # self.fc1 = Sequential(Linear(hidden_dim, fc1_params), ReLU())
+        # self.fc2 = Sequential(Linear(fc1_params, fc2_params), ReLU())
+        # self.fc_output = Sequential(Linear(fc2_params, output_nums), ReLU())
+        self.fc_output = Sequential(Linear(hidden_dim, output_nums))
 
         # 推論のためのSoftMax
         self.inference_softmax = Softmax(dim=1)
@@ -75,8 +76,8 @@ class simpleSR(LightningModule):
         output, input_size = pad_packed_sequence(packed_output, batch_first=True)
         # (N, *, hidden_dim) -> (N, hidden_dim) の形に、LSTMの最終出力だけを取り出す
         output = output[:, -1, :]
-        output = self.fc1(output)  # LSTM層の出力をプロジェクション?
-        output = self.fc2(output)  # 話者特徴の学習: この層の出力が、このネットワークで得られる話者特徴量となる
+        # output = self.fc1(output)  # LSTM層の出力をプロジェクション?
+        # output = self.fc2(output)  # 話者特徴の学習: この層の出力が、このネットワークで得られる話者特徴量となる
         output = self.fc_output(output)  # 特徴量をもとに話者分類を行う
         return output
 

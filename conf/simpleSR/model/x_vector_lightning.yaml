@@ -1,0 +1,2 @@
+_target_: hansyo_ssr.model.X_vector_lightning
+output_nums: ${base_model.num_classes}

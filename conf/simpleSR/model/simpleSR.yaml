@@ -1,6 +1,6 @@
 _target_: hansyo_ssr.model.simpleSR
 input_channel: ${data.feats.bins} # Same as features dimension
-hidden_dim: 1024
-fc1_params: 2048
-fc2_params: 512
+hidden_dim: 128
+fc1_params: 512
+fc2_params: 256
 output_nums: 2

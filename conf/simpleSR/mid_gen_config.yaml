@@ -1,0 +1,7 @@
+defaults:
+  # config.yamlをそのまま読み込む
+  - config.yaml
+  - _self_
+
+mid_type: ""
+xvector_dir: ""

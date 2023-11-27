@@ -1,7 +1,9 @@
 # @package _global_
 
 defaults:
-  - model: simpleSR
+  # - hydra/sweeper: optuna
+  - base_model: x_vector
+  - model: x_vector_lightning
   - optimizer: adamw
     # - scheduler:
   - data: default
@@ -19,5 +21,16 @@ train:
   out_dir: "${train.exp_dir}/output"
   log_dir: "${train.exp_dir}/log"
 
-  max_epochs: 100
+  # max_epochs: 100
+  max_epochs: 25
   batch_size: ${data.loader.batch_size}
+
+# hydra:
+#   sweeper:
+#     optuna_config:
+#       n_traials: 40
+#       direction: maximize
+#       storage: null
+#       study_name: tpe
+#       n_jobs: 1
+#       seed: ${seed}
