@@ -1,0 +1,16 @@
+defaults:
+  # config.yamlをそのまま読み込む
+  - config.yaml
+  - _self_
+
+ckpt_path: "exp/simpleSR/2023-11-27_15:39:25/output/checkpoints/last.ckpt"
+data:
+  spk: # 全話者のリストを扱う際は必要?
+    file: "${data.dir}/reconstruction/mid_gen_all/spks"
+    to_id_file: "${data.dir}/reconstruction/mid_gen_all/spks_to_id"
+  feats:
+    # base: "downloads/xvec/2023-12-05_19:37:01_64" # ここを変えることで、ベースの特徴量のディレクトリを変更できる
+    base: "downloads/xvec/mid_all/simple/2023-12-10_18:51:12_64"
+    dir: "${data.feats.base}/melspec/epoch0200"  # 参照するepoch数はここで変更する
+  test:
+    dir: "${data.dir}/reconstruction/mid_gen_all/"

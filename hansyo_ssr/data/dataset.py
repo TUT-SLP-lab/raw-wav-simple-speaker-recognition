@@ -112,6 +112,9 @@ class SequenceDataset(Dataset):
                 )
                 # ラベル(番号で記載)を1hotなベクトルに変換する(今後のため)
                 self.label_list.append((self.spkid_to_token[spk_id_a], self.spkid_to_token[spk_id_b]))
+                # NOTE: 1. 0.0 ~ 6.0 -> -1.0 ~ 1.0
+                # self.spk_dist_list.append((float(dist_spk) -3.0) / 3.0)
+                # NOTE: 2. 0.0 ~ 6.0 -> 0.0 ~ 1.0
                 self.spk_dist_list.append(float(dist_spk) / 6)
         print("Done.")
         # 発話数をメモ

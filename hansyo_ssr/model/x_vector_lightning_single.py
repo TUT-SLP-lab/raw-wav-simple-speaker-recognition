@@ -14,7 +14,6 @@ from torcheval.metrics import (
 )
 
 
-# TODO: 2話者にした対応を行う必要がある
 class X_vector_lightning(LightningModule):
     def __init__(
         self,
@@ -81,28 +80,20 @@ class X_vector_lightning(LightningModule):
 
         voice_a_loss = self.criterion_a(voice_a_output, labels_a)
         voice_b_loss = self.criterion_b(voice_b_output, labels_b)
-        # distance_loss = self.criterion_distance(voice_distance, spk_dists)
-        # loss = voice_a_loss + voice_b_loss + distance_loss  # w/ distance loss
-        loss = voice_a_loss + voice_b_loss  # w/o distance loss
+        distance_loss = self.criterion_distance(voice_distance, spk_dists)
+        loss = voice_a_loss + voice_b_loss + distance_loss
 
         # update data
         # y_label = y.argmax(dim=1).to(y_hat.device)
-        # y_label_a = labels_a.argmax(dim=1).to(voice_a_output.device)
-        # y_label_b = labels_b.argmax(dim=1).to(voice_b_output.device)
-        # self._update_evaluation_metrics(phase, voice_a_output, y_label_a, voice_b_output, y_label_b)
+        y_label_a = labels_a.argmax(dim=1).to(voice_a_output.device)
+        y_label_b = labels_b.argmax(dim=1).to(voice_b_output.device)
+        self._update_evaluation_metrics(phase, voice_a_output, y_label_a, voice_b_output, y_label_b)
 
         return (
-            # (loss, voice_a_loss, voice_b_loss, distance_loss),
-            (loss, voice_a_loss, voice_b_loss),
+            (loss, voice_a_loss, voice_b_loss, distance_loss),
             (voice_a_output, voice_b_output),
             (voice_a_x_vec, voice_b_x_vec),
         )
-
-    def _model_step_inference(self, batch, phase):
-        """モデルの推論時飲みに使う処理の切り出し"""
-        (feats_a, feats_b, _, _, _, _, _, _, _, _, _) = batch
-        ((_, _, voice_a_x_vec), (_, _, voice_b_x_vec), _) = self.forward(feats_a, feats_b)
-        return ((), (), (voice_a_x_vec, voice_b_x_vec))
 
     def _update_evaluation_metrics(self, phase, y_hat_a, y_label_a, y_hat_b, y_label_b):
         self.accuracy[phase].update(y_hat_a, y_label_a)
@@ -147,66 +138,90 @@ class X_vector_lightning(LightningModule):
     #          Pytorch Lightning           #
     ########################################
     def on_fit_start(self):
-        pass
-        # self.accuracy = {}
-        # self.precision = {}
-        # self.recall = {}
-        # self.f1_score = {}
-        #
-        # if self.hparams.accuracy is not None:
-        #     self.accuracy["train"] = self.hparams.accuracy()
-        #     self.accuracy["val"] = self.hparams.accuracy()
-        # else:
-        #     self.accuracy["train"] = MulticlassAccuracy(device=self.device)
-        #     self.accuracy["val"] = MulticlassAccuracy(device=self.device)
-        #
-        # if self.hparams.precision is not None:
-        #     self.precision["train"] = self.hparams.precision()
-        #     self.precision["val"] = self.hparams.precision()
-        # else:
-        #     self.precision["train"] = MulticlassPrecision(device=self.device)
-        #     self.precision["val"] = MulticlassPrecision(device=self.device)
-        #
-        # if self.hparams.recall is not None:
-        #     self.recall["train"] = self.hparams.recall()
-        #     self.recall["val"] = self.hparams.recall()
-        # else:
-        #     self.recall["train"] = MulticlassRecall(device=self.device)
-        #     self.recall["val"] = MulticlassRecall(device=self.device)
-        #
-        # if self.hparams.f1_score is not None:
-        #     self.f1_score["train"] = self.hparams.f1_score()
-        #     self.f1_score["val"] = self.hparams.f1_score()
-        # else:
-        #     self.f1_score["train"] = MulticlassF1Score(device=self.device)
-        #     self.f1_score["val"] = MulticlassF1Score(device=self.device)
+        self.accuracy = {}
+        self.precision = {}
+        self.recall = {}
+        self.f1_score = {}
+
+        if self.hparams.accuracy is not None:
+            self.accuracy["train"] = self.hparams.accuracy()
+            self.accuracy["val"] = self.hparams.accuracy()
+            self.accuracy["test"] = self.hparams.accuracy()
+        else:
+            self.accuracy["train"] = MulticlassAccuracy(device=self.device)
+            self.accuracy["val"] = MulticlassAccuracy(device=self.device)
+            self.accuracy["test"] = MulticlassAccuracy(device=self.device)
+
+        if self.hparams.precision is not None:
+            self.precision["train"] = self.hparams.precision()
+            self.precision["val"] = self.hparams.precision()
+            self.precision["test"] = self.hparams.precision()
+
+        else:
+            self.precision["train"] = MulticlassPrecision(device=self.device)
+            self.precision["val"] = MulticlassPrecision(device=self.device)
+            self.precision["test"] = MulticlassPrecision(device=self.device)
+
+        if self.hparams.recall is not None:
+            self.recall["train"] = self.hparams.recall()
+            self.recall["val"] = self.hparams.recall()
+            self.recall["test"] = self.hparams.recall()
+        else:
+            self.recall["train"] = MulticlassRecall(device=self.device)
+            self.recall["val"] = MulticlassRecall(device=self.device)
+            self.recall["test"] = MulticlassRecall(device=self.device)
+
+        if self.hparams.f1_score is not None:
+            self.f1_score["train"] = self.hparams.f1_score()
+            self.f1_score["val"] = self.hparams.f1_score()
+            self.f1_score["test"] = self.hparams.f1_score()
+        else:
+            self.f1_score["train"] = MulticlassF1Score(device=self.device)
+            self.f1_score["val"] = MulticlassF1Score(device=self.device)
+            self.f1_score["test"] = MulticlassF1Score(device=self.device)
 
     def on_test_start(self):
-        pass
-        # self.accuracy = {}
-        # self.precision = {}
-        # self.recall = {}
-        # self.f1_score = {}
-        #
-        # if self.hparams.accuracy is not None:
-        #     self.accuracy["test"] = self.hparams.accuracy()
-        # else:
-        #     self.accuracy["test"] = MulticlassAccuracy(device=self.device)
-        #
-        # if self.hparams.precision is not None:
-        #     self.precision["test"] = self.hparams.precision()
-        # else:
-        #     self.precision["test"] = MulticlassPrecision(device=self.device)
-        #
-        # if self.hparams.recall is not None:
-        #     self.recall["test"] = self.hparams.recall()
-        # else:
-        #     self.recall["test"] = MulticlassRecall(device=self.device)
-        #
-        # if self.hparams.f1_score is not None:
-        #     self.f1_score["test"] = self.hparams.f1_score()
-        # else:
-        #     self.f1_score["test"] = MulticlassF1Score(device=self.device)
+        self.accuracy = {}
+        self.precision = {}
+        self.recall = {}
+        self.f1_score = {}
+
+        if self.hparams.accuracy is not None:
+            self.accuracy["train"] = self.hparams.accuracy()
+            self.accuracy["val"] = self.hparams.accuracy()
+            self.accuracy["test"] = self.hparams.accuracy()
+        else:
+            self.accuracy["train"] = MulticlassAccuracy(device=self.device)
+            self.accuracy["val"] = MulticlassAccuracy(device=self.device)
+            self.accuracy["test"] = MulticlassAccuracy(device=self.device)
+
+        if self.hparams.precision is not None:
+            self.precision["train"] = self.hparams.precision()
+            self.precision["val"] = self.hparams.precision()
+            self.precision["test"] = self.hparams.precision()
+
+        else:
+            self.precision["train"] = MulticlassPrecision(device=self.device)
+            self.precision["val"] = MulticlassPrecision(device=self.device)
+            self.precision["test"] = MulticlassPrecision(device=self.device)
+
+        if self.hparams.recall is not None:
+            self.recall["train"] = self.hparams.recall()
+            self.recall["val"] = self.hparams.recall()
+            self.recall["test"] = self.hparams.recall()
+        else:
+            self.recall["train"] = MulticlassRecall(device=self.device)
+            self.recall["val"] = MulticlassRecall(device=self.device)
+            self.recall["test"] = MulticlassRecall(device=self.device)
+
+        if self.hparams.f1_score is not None:
+            self.f1_score["train"] = self.hparams.f1_score()
+            self.f1_score["val"] = self.hparams.f1_score()
+            self.f1_score["test"] = self.hparams.f1_score()
+        else:
+            self.f1_score["train"] = MulticlassF1Score(device=self.device)
+            self.f1_score["val"] = MulticlassF1Score(device=self.device)
+            self.f1_score["test"] = MulticlassF1Score(device=self.device)
 
     def training_step(self, batch, batch_idx):
         loss, _, _ = self._model_step(batch, "train")
@@ -214,12 +229,11 @@ class X_vector_lightning(LightningModule):
         self._step_log("train/loss", loss[0], batch_size=batch_size)
         self._step_log("train/loss_voice_a", loss[1], batch_size=batch_size)
         self._step_log("train/loss_voice_b", loss[2], batch_size=batch_size)
-        # self._step_log("train/loss_distance", loss[3], batch_size=batch_size)
+        self._step_log("train/loss_distance", loss[3], batch_size=batch_size)
         return loss[0]
 
     def on_training_epoch_end(self):
-        pass
-        # self._epoch_end("train")
+        self._epoch_end("train")
 
     def validation_step(self, batch, batch_idx):
         loss, _, _ = self._model_step(batch, "val")
@@ -227,30 +241,24 @@ class X_vector_lightning(LightningModule):
         self._step_log("val/loss", loss[0], batch_size=batch_size, on_step=False)
         self._step_log("val/loss_voice_a", loss[1], batch_size=batch_size, on_step=False)
         self._step_log("val/loss_voice_b", loss[2], batch_size=batch_size, on_step=False)
-        # self._step_log("val/loss_distance", loss[3], batch_size=batch_size, on_step=False)
+        self._step_log("val/loss_distance", loss[3], batch_size=batch_size, on_step=False)
         return loss
 
     def on_validation_epoch_end(self):
-        pass
-        # self._epoch_end("val")
+        self._epoch_end("val")
 
     def test_step(self, batch, batch_idx):
-        if False:
-            # lossも出力する場合
-            loss, preds, x_vecs = self._model_step(batch, "train")
-            batch_size = len(batch[-1])
-            self._step_log("test/loss", loss[0], batch_size=batch_size, on_step=False)
-            self._step_log("test/loss_voice_a", loss[1], batch_size=batch_size, on_step=False)
-            self._step_log("test/loss_voice_b", loss[2], batch_size=batch_size, on_step=False)
-            # self._step_log("test/loss_distance", loss[3], batch_size=batch_size, on_step=False)
-        else:
-            loss, preds, x_vecs = self._model_step_inference(batch, "train")
+        loss, preds, x_vecs = self._model_step(batch, "train")
+        batch_size = len(batch[-1])
+        self._step_log("test/loss", loss[0], batch_size=batch_size, on_step=False)
+        self._step_log("test/loss_voice_a", loss[1], batch_size=batch_size, on_step=False)
+        self._step_log("test/loss_voice_b", loss[2], batch_size=batch_size, on_step=False)
+        self._step_log("test/loss_distance", loss[3], batch_size=batch_size, on_step=False)
         self._save_xvecs(batch, x_vecs)
         return loss, preds, x_vecs
 
     def on_test_epoch_end(self):
-        pass
-        # self._epoch_end("test")
+        self._epoch_end("test")
 
     def configure_optimizers(self):
         optimizer = self.hparams.optimizer(params=self.parameters())

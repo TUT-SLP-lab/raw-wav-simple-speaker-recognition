@@ -60,6 +60,14 @@ class X_vector(nn.Module):
         # Linear
         segment6_out = self.segment6(stat_pooling)
         x_vec = self.segment7(segment6_out)
+
+        # sigmoid -> 0 ~ 1
+        # x_vec = torch.sigmoid(x_vec)
+
+        # # NOTE: L2 normalize
+        # x_vec_norm = torch.norm(x_vec, dim=1, keepdim=True)
+        # x_vec = torch.div(x_vec, x_vec_norm)
+
         output = self.output(x_vec)
         predictions = self.softmax(output)
         return output, predictions, x_vec

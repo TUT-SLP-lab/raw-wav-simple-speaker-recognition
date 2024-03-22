@@ -17,7 +17,8 @@ devices: 1  # If you have multi-GPU unit, you can tell here to using GPUs num
 ckpt_path:  # If you have pretrained model, you can use this option
 
 train:
-  exp_dir: "exp/simpleSR/${now:%Y-%m-%d_%H:%M:%S}"
+  # tr: true range
+  exp_dir: "exp/simpleSR/${now:%Y-%m-%d_%H:%M:%S}_baseline_wo_norm"
   out_dir: "${train.exp_dir}/output"
   log_dir: "${train.exp_dir}/log"
 

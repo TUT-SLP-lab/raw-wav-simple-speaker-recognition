@@ -1,0 +1,8 @@
+mid_type: "simple"
+list_file_name: "mid_id_all_synth.list"
+xvector_dim: 64
+num_spks: 1225
+
+outputs:
+  dir: outputs/x_vec_mean
+  stack_file_name: "x_vector_all_gen_${mid_type}.npy"
